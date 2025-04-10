@@ -8,7 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      packages: read
 
     steps:
     - name: Checkout code
@@ -66,6 +65,64 @@ jobs:
         # Push to the branch
         git push -f origin generated-images
         
+    - name: Create HTML index for images
+      run: |
+        # Create a simple HTML file to view the images
+        cat > image_viewer.html << EOL
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Gemini Generated Turtle Images</title>
+            <style>
+                body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+                h1 { color: #2a7ae2; }
+                .image-container { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 30px; }
+                .image-card { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; width: 45%; max-width: 500px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+                .image-card img { width: 100%; height: auto; display: block; }
+                .image-card .caption { padding: 15px; background-color: #f8f9fa; }
+                .story { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 30px; line-height: 1.6; }
+                pre { white-space: pre-wrap; }
+            </style>
+        </head>
+        <body>
+            <h1>Gemini Generated Turtle Images</h1>
+            <p>These images were generated using the Google Gemini AI API on $(date).</p>
+            
+            <div class="story">
+                <h2>The Turtle Story</h2>
+                <pre id="story-content">$(cat output_story.txt)</pre>
+            </div>
+            
+            <h2>Images</h2>
+            <div class="image-container">
+        EOL
+        
+        # Add each image to the HTML
+        for i in $(ls turtle_images/*.png | sort); do
+          IMG_NAME=$(basename "$i")
+          SCENE_NUM=$(echo $IMG_NAME | sed 's/image_\([0-9]*\).png/\1/')
+          echo "                <div class=\"image-card\">" >> image_viewer.html
+          echo "                    <img src=\"$i\" alt=\"Turtle Scene $SCENE_NUM\">" >> image_viewer.html
+          echo "                    <div class=\"caption\">" >> image_viewer.html
+          echo "                        <h3>Scene $SCENE_NUM</h3>" >> image_viewer.html
+          echo "                    </div>" >> image_viewer.html
+          echo "                </div>" >> image_viewer.html
+        done
+        
+        # Close the HTML
+        cat >> image_viewer.html << EOL
+            </div>
+            
+            <p><a href="turtle_images.zip">Download all images as ZIP</a></p>
+        </body>
+        </html>
+        EOL
+        
+        # Add the HTML viewer to git
+        git add image_viewer.html
+        git commit -m "Add HTML image viewer" || echo "No changes to commit"
+        git push origin generated-images
+        
     - name: Create download instructions
       run: |
         echo "=================================================================" 
@@ -90,29 +147,8 @@ jobs:
         echo ""
         echo "All images as ZIP: $REPO_URL/turtle_images.zip"
         echo ""
+        echo "HTML Image Viewer: $REPO_URL/image_viewer.html"
+        echo ""
         echo "You can also browse all files at:"
         echo "https://github.com/${{ github.repository }}/tree/generated-images"
         echo "=================================================================" 
-
-    # Fallback: Also upload as artifacts in case push fails
-    - name: Upload turtle images
-      uses: actions/upload-artifact@v2
-      with:
-        name: turtle-images
-        path: turtle_images/
-        retention-days: 90
-        
-    - name: Upload story text
-      uses: actions/upload-artifact@v2
-      with:
-        name: turtle-story
-        path: output_story.txt
-        retention-days: 90
-        
-    - name: Upload zipped images
-      uses: actions/upload-artifact@v2
-      with:
-        name: all-turtle-images-zip
-        path: turtle_images.zip
-        retention-days: 90
-        if-no-files-found: ignore
