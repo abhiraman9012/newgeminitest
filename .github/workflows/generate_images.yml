@@ -20,6 +20,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install google-genai==0.1.0 Pillow
+        pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib requests
 
     - name: Run script
       env:
@@ -27,6 +28,11 @@ jobs:
       run: |
         python generate_image.py
         ls -la
+
+    - name: Upload to Google Drive
+      run: |
+        python upload_to_drive.py
+        cat drive_links.txt || echo "No drive links file found"
 
     - name: Create output folder and copy files
       run: |
@@ -45,4 +51,9 @@ jobs:
         if [ -f output_story.txt ]; then
           cp output_story.txt ../output_folder/
           echo "Story copied to output folder"
+        fi
+        # Copy drive links file if available
+        if [ -f drive_links.txt ]; then
+          cp drive_links.txt ../output_folder/
+          echo "Drive links copied to output folder"
         fi
