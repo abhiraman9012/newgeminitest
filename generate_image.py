@@ -36,59 +36,6 @@ def retry_with_backoff(func, max_retries=5, initial_delay=2):
 # Create a directory for the images (even if we fail, we'll need this for the workflow)
 os.makedirs('turtle_images', exist_ok=True)
     
-# Generate backup content if API fails completely
-def create_backup_content():
-    print("API request failed too many times. Creating backup content...")
-    
-    # Write a simple story
-    story = """# The Adventures of Tiny the Turtle
-
-Once upon a time, there was a small baby turtle named Tiny. 
-He had a beautiful green shell and curious eyes that sparkled in the sunlight.
-
-Tiny loved exploring the sandy beach where he was born. 
-Each day was a new adventure for the little turtle.
-
-One day, Tiny found his way to the ocean and began his journey into the big blue sea.
-
-The waves carried him gently as he discovered a wonderful underwater world full of colorful fish and plants.
-
-Tiny grew stronger every day and knew that one day he would return to the same beach to start a family of his own.
-
-The End."""
-    
-    with open('output_story.txt', 'w') as f:
-        f.write(story)
-    print("Backup story created and saved to output_story.txt")
-    
-    # Create a simple turtle image
-    img = Image.new('RGB', (800, 600), color=(0, 105, 148))
-    from PIL import ImageDraw
-    draw = ImageDraw.Draw(img)
-    
-    # Draw a simple turtle shape (shell)
-    draw.ellipse((300, 200, 500, 400), fill=(34, 139, 34), outline=(0, 100, 0), width=3)
-    
-    # Head
-    draw.ellipse((470, 270, 530, 330), fill=(34, 139, 34), outline=(0, 100, 0), width=3)
-    
-    # Eyes
-    draw.ellipse((490, 280, 500, 290), fill=(255, 255, 255), outline=(0, 0, 0), width=1)
-    draw.ellipse((510, 280, 520, 290), fill=(255, 255, 255), outline=(0, 0, 0), width=1)
-    
-    # Shell pattern
-    for i in range(3):
-        draw.ellipse((320 + i*30, 220 + i*30, 480 - i*30, 380 - i*30), outline=(0, 80, 0), width=2)
-    
-    # Text
-    draw.text((50, 50), "Tiny the Turtle", fill=(255, 255, 0))
-    draw.text((50, 80), "(Backup image - API was unavailable)", fill=(255, 255, 255))
-    
-    # Save images
-    img.save('output_image.png')
-    img.save('turtle_images/image_1.png')
-    print("Backup image created and saved")
-
 try:
     # Wrap the API call in our retry function
     def generate_content_with_retry():
@@ -133,5 +80,4 @@ try:
         
 except Exception as e:
     print(f"Error after all retries: {e}")
-    # Generate backup content if all retries fail
-    create_backup_content()
+    print("Could not generate images with Gemini API after multiple attempts. Please try again later.")
