@@ -1,33 +1,39 @@
-from PIL import Image, ImageDraw, ImageFont
-import datetime
+import os
+from google import genai
+from PIL import Image
+from io import BytesIO
 
-# Create a new image with white background
-image = Image.new('RGB', (800, 600), (255, 255, 255))
-draw = ImageDraw.Draw(image)
+# Configure the API key from environment variable
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    raise ValueError("GEMINI_API_KEY environment variable is not set")
 
-# Draw a sample text
-text = "Hello from Gemini API Demo\nPlaceholder Image"
-# Use default font
-draw.text((50, 50), text, fill=(0, 0, 0))
+# Initialize the client
+client = genai.Client(api_key=api_key)
 
-# Draw a turtle-like shape
-# Body (circle)
-draw.ellipse((300, 250, 500, 450), fill=(0, 150, 0), outline=(0, 0, 0))
-# Head
-draw.ellipse((450, 300, 550, 400), fill=(0, 150, 0), outline=(0, 0, 0))
-# Eyes
-draw.ellipse((490, 330, 510, 350), fill=(255, 255, 255), outline=(0, 0, 0))
-draw.ellipse((500, 330, 520, 350), fill=(255, 255, 255), outline=(0, 0, 0))
-# Legs
-draw.ellipse((290, 300, 340, 350), fill=(0, 150, 0), outline=(0, 0, 0))  # Front left
-draw.ellipse((290, 350, 340, 400), fill=(0, 150, 0), outline=(0, 0, 0))  # Back left
-draw.ellipse((460, 300, 510, 350), fill=(0, 150, 0), outline=(0, 0, 0))  # Front right
-draw.ellipse((460, 350, 510, 400), fill=(0, 150, 0), outline=(0, 0, 0))  # Back right
+# Define the prompt for image generation
+prompt = "Generate a story about a cute baby turtle in a 3d digital art style. For each scene, generate an image."
 
-# Add timestamp
-timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-draw.text((50, 550), f"Generated at: {timestamp}", fill=(100, 100, 100))
+print(f"Sending request to generate image with prompt: {prompt}")
 
-# Save the image
-image.save('output_image.png')
-print("Image saved as output_image.png")
+# Generate content with image modality
+try:
+    response = client.models.generate_images(
+        model="imagen-3.0-generate-002",
+        prompt=prompt,
+        config=genai.types.GenerateImagesConfig(
+            number_of_images=1,
+            output_mime_type="image/png",
+        ),
+    )
+    
+    # Save the generated image
+    if response.generated_images:
+        image = response.generated_images[0].image
+        image.save('output_image.png')
+        print("Image saved successfully to output_image.png")
+    else:
+        print("No images were generated in the response")
+        
+except Exception as e:
+    print(f"Error generating image: {e}")

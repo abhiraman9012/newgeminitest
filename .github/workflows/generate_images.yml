@@ -19,11 +19,19 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install google-generativeai Pillow
+        pip install google-genai==0.1.0 Pillow
 
     - name: Run image generation
       env:
         GEMINI_API_KEY: "AIzaSyC8FuTNC3FxLs0Qx2ciRoLwxjOrLGqOB5A"
       run: |
         python generate_image.py
-        cat output_image.png || echo "No image generated or error occurred"
+        ls -la  # List files to see if the image was generated
+        if [ -f output_image.png ]; then
+          echo "Image was successfully generated"
+          mkdir -p ../output_folder
+          cp output_image.png ../output_folder/
+          echo "Image copied to output folder"
+        else
+          echo "Image generation failed"
+        fi
