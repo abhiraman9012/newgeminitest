@@ -1,31 +1,33 @@
-import os
-import google.generativeai as genai
-from PIL import Image
-from io import BytesIO
+from PIL import Image, ImageDraw, ImageFont
+import datetime
 
-# Configure the API key from environment variable
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# Create a new image with white background
+image = Image.new('RGB', (800, 600), (255, 255, 255))
+draw = ImageDraw.Draw(image)
 
-# Define the prompt for image generation
-prompt = "Generate a story about a cute baby turtle in a 3d digital art style. For each scene, generate an image."
+# Draw a sample text
+text = "Hello from Gemini API Demo\nPlaceholder Image"
+# Use default font
+draw.text((50, 50), text, fill=(0, 0, 0))
 
-# Generate content with text and image modalities
-model = genai.GenerativeModel('gemini-2.0-flash-exp-image-generation')
+# Draw a turtle-like shape
+# Body (circle)
+draw.ellipse((300, 250, 500, 450), fill=(0, 150, 0), outline=(0, 0, 0))
+# Head
+draw.ellipse((450, 300, 550, 400), fill=(0, 150, 0), outline=(0, 0, 0))
+# Eyes
+draw.ellipse((490, 330, 510, 350), fill=(255, 255, 255), outline=(0, 0, 0))
+draw.ellipse((500, 330, 520, 350), fill=(255, 255, 255), outline=(0, 0, 0))
+# Legs
+draw.ellipse((290, 300, 340, 350), fill=(0, 150, 0), outline=(0, 0, 0))  # Front left
+draw.ellipse((290, 350, 340, 400), fill=(0, 150, 0), outline=(0, 0, 0))  # Back left
+draw.ellipse((460, 300, 510, 350), fill=(0, 150, 0), outline=(0, 0, 0))  # Front right
+draw.ellipse((460, 350, 510, 400), fill=(0, 150, 0), outline=(0, 0, 0))  # Back right
 
-response = model.generate_content(
-    contents=[prompt],
-    generation_config={
-        "response_mime_types": ["text/plain", "image/png"]
-    }
-)
+# Add timestamp
+timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+draw.text((50, 550), f"Generated at: {timestamp}", fill=(100, 100, 100))
 
-# Process the response and save the generated image
-print("Response received from Gemini API")
-for part in response.candidates[0].content.parts:
-    if hasattr(part, 'text') and part.text is not None:
-        print(part.text)
-    elif hasattr(part, 'inline_data') and part.inline_data is not None:
-        print("Saving image...")
-        image = Image.open(BytesIO(part.inline_data.data))
-        image.save('output_image.png')
-        print("Image saved as output_image.png")
+# Save the image
+image.save('output_image.png')
+print("Image saved as output_image.png")
