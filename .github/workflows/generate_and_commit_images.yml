@@ -1,0 +1,79 @@
+name: Generate Images and Commit to Repository
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate_and_commit:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3.5.3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4.7.1
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install google-genai==0.1.0 Pillow
+
+    - name: Run script
+      env:
+        GEMINI_API_KEY: "AIzaSyC8FuTNC3FxLs0Qx2ciRoLwxjOrLGqOB5A"
+      run: |
+        python generate_image.py
+        ls -la
+
+    - name: Configure Git
+      run: |
+        git config --global user.name "GitHub Actions Bot"
+        git config --global user.email "actions@github.com"
+        
+    - name: Create images branch
+      run: |
+        # Create and checkout a new branch for the images
+        git checkout -b generated-images
+        
+        # Stage all new images and the story
+        git add turtle_images/*.png
+        git add output_story.txt
+        git add output_image.png
+        
+        # Get current date
+        TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+        
+        # Commit the changes
+        git commit -m "Generated turtle images on $TIMESTAMP" || echo "No new images to commit"
+        
+        # Push to the branch
+        git push -f origin generated-images
+        
+    - name: Create download instructions
+      run: |
+        echo "=================================================================" 
+        echo "DOWNLOAD LINKS:"
+        echo "=================================================================" 
+        echo "The images have been committed to the 'generated-images' branch."
+        echo ""
+        echo "Direct links to download:"
+        
+        # Generate links to each image
+        REPO_URL="https://raw.githubusercontent.com/${{ github.repository }}/generated-images"
+        
+        echo "Story text: $REPO_URL/output_story.txt"
+        echo ""
+        
+        echo "Individual images:"
+        for img in turtle_images/*.png; do
+          IMG_NAME=$(basename "$img")
+          echo "- $IMG_NAME: $REPO_URL/turtle_images/$IMG_NAME"
+        done
+        
+        echo ""
+        echo "You can also browse all files at:"
+        echo "https://github.com/${{ github.repository }}/tree/generated-images"
+        echo "=================================================================" 
