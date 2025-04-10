@@ -9,10 +9,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v3.5.3
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v4.7.1
       with:
         python-version: '3.10'
 
@@ -28,7 +28,7 @@ jobs:
         python generate_image.py
 
     - name: Upload image artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3.1.2
       with:
         name: generated-image
         path: output_image.png
