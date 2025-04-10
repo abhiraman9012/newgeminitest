@@ -65,11 +65,23 @@ jobs:
         ls -la download_package
 
     - name: Upload images as artifact
-      uses: actions/upload-artifact@v3.1.2
+      uses: actions/upload-artifact@v2
       with:
         name: gemini-turtle-story-package
         path: download_package
         retention-days: 7
+
+    - name: Create an output file with image URLs
+      run: |
+        echo "================================================================="  > image_locations.txt
+        echo "IMAGE DOWNLOAD INSTRUCTIONS:" >> image_locations.txt
+        echo "================================================================="  >> image_locations.txt
+        echo "1. In GitHub: Go to Actions tab → this workflow run → Artifacts → download zip" >> image_locations.txt
+        echo "2. Direct URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> image_locations.txt
+        echo "" >> image_locations.txt
+        echo "All generated images are stored in the 'turtle_images' directory" >> image_locations.txt
+        echo "================================================================="  >> image_locations.txt
+        cat image_locations.txt
 
     - name: Provide download instructions
       run: |
