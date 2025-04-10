@@ -1,5 +1,6 @@
 import os
 from google import genai
+from google.genai import types
 from PIL import Image
 from io import BytesIO
 
@@ -16,24 +17,28 @@ prompt = "Generate a story about a cute baby turtle in a 3d digital art style. F
 
 print(f"Sending request to generate image with prompt: {prompt}")
 
-# Generate content with image modality
+# Generate content with text and image modalities
 try:
-    response = client.models.generate_images(
-        model="imagen-3.0-generate-002",
-        prompt=prompt,
-        config=genai.types.GenerateImagesConfig(
-            number_of_images=1,
-            output_mime_type="image/png",
+    response = client.models.generate_content(
+        model="gemini-2.0-flash-exp-image-generation",
+        contents=[prompt],
+        config=types.GenerateContentConfig(
+            response_modalities=["Text", "Image"]
         ),
     )
     
-    # Save the generated image
-    if response.generated_images:
-        image = response.generated_images[0].image
-        image.save('output_image.png')
-        print("Image saved successfully to output_image.png")
-    else:
-        print("No images were generated in the response")
+    # Process the response and save the generated image
+    for part in response.candidates[0].content.parts:
+        if hasattr(part, 'text') and part.text is not None:
+            print(part.text)
+            # Save text to a file
+            with open('output_story.txt', 'w') as f:
+                f.write(part.text)
+        elif hasattr(part, 'inline_data') and part.inline_data is not None:
+            print("Saving image...")
+            image = Image.open(BytesIO(part.inline_data.data))
+            image.save('output_image.png')
+            print("Image saved as output_image.png")
         
 except Exception as e:
-    print(f"Error generating image: {e}")
+    print(f"Error: {e}")
