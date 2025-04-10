@@ -23,7 +23,7 @@ jobs:
 
     - name: Run image generation
       env:
-        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        GEMINI_API_KEY: "AIzaSyC8FuTNC3FxLs0Qx2ciRoLwxjOrLGqOB5A"
       run: |
         python generate_image.py
 
