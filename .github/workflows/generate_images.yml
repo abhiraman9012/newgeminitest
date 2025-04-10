@@ -26,9 +26,4 @@ jobs:
         GEMINI_API_KEY: "AIzaSyC8FuTNC3FxLs0Qx2ciRoLwxjOrLGqOB5A"
       run: |
         python generate_image.py
-
-    - name: Upload image artifact
-      uses: actions/upload-artifact@v3.1.2
-      with:
-        name: generated-image
-        path: output_image.png
+        cat output_image.png || echo "No image generated or error occurred"
