@@ -21,17 +21,28 @@ jobs:
         python -m pip install --upgrade pip
         pip install google-genai==0.1.0 Pillow
 
-    - name: Run image generation
+    - name: Run script
       env:
         GEMINI_API_KEY: "AIzaSyC8FuTNC3FxLs0Qx2ciRoLwxjOrLGqOB5A"
       run: |
         python generate_image.py
-        ls -la  # List files to see if the image was generated
+        ls -la
+
+    - name: Create output folder and copy files
+      run: |
+        mkdir -p ../output_folder
+        # Copy individual images
+        if [ -d turtle_images ]; then
+          cp -r turtle_images ../output_folder/
+          echo "All turtle images copied to output folder"
+        fi
+        # Copy latest image if available
         if [ -f output_image.png ]; then
-          echo "Image was successfully generated"
-          mkdir -p ../output_folder
           cp output_image.png ../output_folder/
-          echo "Image copied to output folder"
-        else
-          echo "Image generation failed"
+          echo "Latest image copied to output folder"
+        fi
+        # Copy story text
+        if [ -f output_story.txt ]; then
+          cp output_story.txt ../output_folder/
+          echo "Story copied to output folder"
         fi

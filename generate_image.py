@@ -27,18 +27,35 @@ try:
         ),
     )
     
-    # Process the response and save the generated image
+    # Create a directory for the images
+    os.makedirs('turtle_images', exist_ok=True)
+    
+    # Variables to track images and story
+    full_story = ""
+    image_count = 0
+    
+    # Process the response and save the generated images with unique filenames
     for part in response.candidates[0].content.parts:
         if hasattr(part, 'text') and part.text is not None:
             print(part.text)
-            # Save text to a file
-            with open('output_story.txt', 'w') as f:
-                f.write(part.text)
+            full_story += part.text + "\n"
+            
         elif hasattr(part, 'inline_data') and part.inline_data is not None:
-            print("Saving image...")
+            image_count += 1
+            image_filename = f'turtle_images/image_{image_count}.png'
+            print(f"Saving image {image_count}...")
             image = Image.open(BytesIO(part.inline_data.data))
+            image.save(image_filename)
+            print(f"Image saved as {image_filename}")
+            
+            # Also save the latest image as output_image.png for compatibility
             image.save('output_image.png')
-            print("Image saved as output_image.png")
+    
+    # Save the complete story
+    with open('output_story.txt', 'w') as f:
+        f.write(full_story)
+    print(f"Story saved to output_story.txt")
+    print(f"Generated {image_count} images in the 'turtle_images' folder")
         
 except Exception as e:
     print(f"Error: {e}")
