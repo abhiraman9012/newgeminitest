@@ -6,6 +6,9 @@ on:
 jobs:
   generate_and_commit:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
 
     steps:
     - name: Checkout code
@@ -27,6 +30,11 @@ jobs:
       run: |
         python generate_image.py
         ls -la
+        # Create a zip file of all images for easy download
+        if [ -d turtle_images ]; then
+          zip -r turtle_images.zip turtle_images
+          echo "Created turtle_images.zip with all images"
+        fi
 
     - name: Configure Git
       run: |
@@ -35,7 +43,7 @@ jobs:
         
     - name: Create images branch
       env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ github.token }}
       run: |
         # Create and checkout a new branch for the images
         git checkout -b generated-images
@@ -44,6 +52,7 @@ jobs:
         git add turtle_images/*.png
         git add output_story.txt
         git add output_image.png
+        git add turtle_images.zip || echo "No zip file to add"
         
         # Get current date
         TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
@@ -51,7 +60,7 @@ jobs:
         # Commit the changes
         git commit -m "Generated turtle images on $TIMESTAMP" || echo "No new images to commit"
         
-        # Use authenticated HTTPS URL for push
+        # Configure git to use the provided token
         git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
         
         # Push to the branch
@@ -79,6 +88,31 @@ jobs:
         done
         
         echo ""
+        echo "All images as ZIP: $REPO_URL/turtle_images.zip"
+        echo ""
         echo "You can also browse all files at:"
         echo "https://github.com/${{ github.repository }}/tree/generated-images"
         echo "=================================================================" 
+
+    # Fallback: Also upload as artifacts in case push fails
+    - name: Upload turtle images
+      uses: actions/upload-artifact@v2
+      with:
+        name: turtle-images
+        path: turtle_images/
+        retention-days: 90
+        
+    - name: Upload story text
+      uses: actions/upload-artifact@v2
+      with:
+        name: turtle-story
+        path: output_story.txt
+        retention-days: 90
+        
+    - name: Upload zipped images
+      uses: actions/upload-artifact@v2
+      with:
+        name: all-turtle-images-zip
+        path: turtle_images.zip
+        retention-days: 90
+        if-no-files-found: ignore

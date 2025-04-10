@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>How to Generate Turtle Images Locally</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        h1 { color: #2a7ae2; }
+        .step { background-color: #f8f9fa; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
+        code { background-color: #f1f1f1; padding: 4px 6px; border-radius: 4px; font-family: monospace; }
+        .note { margin-top: 20px; padding: 15px; background-color: #e8f4f8; border-left: 5px solid #2a7ae2; }
+        .success { background-color: #d4edda; border-left: 5px solid #28a745; }
+    </style>
+</head>
+<body>
+    <h1>How to Generate Turtle Images Locally</h1>
+    <p>Follow these steps to generate the cute baby turtle images on your local machine:</p>
+    
+    <div class="step">
+        <h2>Step 1: Install Python</h2>
+        <p>You'll need Python installed on your computer. If you don't have it yet:</p>
+        <ol>
+            <li>Go to <a href="https://www.python.org/downloads/" target="_blank">https://www.python.org/downloads/</a></li>
+            <li>Download the latest version for Windows</li>
+            <li>Run the installer and make sure to check "Add Python to PATH"</li>
+        </ol>
+    </div>
+    
+    <div class="step">
+        <h2>Step 2: Set up your project</h2>
+        <p>Open Command Prompt and run these commands:</p>
+        <code>cd C:\Users\deployyyyyyyyyyyyyyy\Desktop\New folder</code><br>
+        <code>pip install google-genai==0.1.0 Pillow</code>
+    </div>
+    
+    <div class="step">
+        <h2>Step 3: Create a .env file with your Gemini API key</h2>
+        <p>Create a new file named ".env" in the same folder and add this line:</p>
+        <code>GEMINI_API_KEY=AIzaSyC8FuTNC3FxLs0Qx2ciRoLwxjOrLGqOB5A</code>
+    </div>
+    
+    <div class="step">
+        <h2>Step 4: Generate the images</h2>
+        <p>Run the following command to generate the turtle images:</p>
+        <code>python generate_image.py</code>
+    </div>
+    
+    <div class="step success">
+        <h2>Success!</h2>
+        <p>After running the script, you should have:</p>
+        <ul>
+            <li>A <strong>turtle_images</strong> folder containing multiple PNG images</li>
+            <li>An <strong>output_story.txt</strong> file with the story</li>
+            <li>An <strong>output_image.png</strong> file (the last image)</li>
+        </ul>
+    </div>
+    
+    <div class="note">
+        <h3>What's happening behind the scenes</h3>
+        <p>When you run the script:</p>
+        <ol>
+            <li>It connects to the Google Gemini API using your provided API key</li>
+            <li>It sends a prompt asking for a story about a cute baby turtle with images</li>
+            <li>The API generates both the story text and multiple images</li>
+            <li>The script saves each image and the story text to your local machine</li>
+        </ol>
+        <p>Each time you run it, you'll get a different story and different images!</p>
+    </div>
+</body>
+</html>
